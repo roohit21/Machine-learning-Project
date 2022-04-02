@@ -1,0 +1,115 @@
+Source Code:
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import RobustScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+HR_Data = pd.read_csv("C:\\Users\\phulcdand\\Downloads\\HR_Employee_Attrition-1.csv")
+HR_Data.head()
+HR_Data.columns
+HR_Data.shape
+
+Exploratory Data Analysis
+
+HR_Data.isnull().sum()
+
+# Checking the unique value of dataset
+HR_Data.nunique()
+
+# Finding_categorical_dataset  
+categorical = [var for var in HR_Data.columns if HR_Data[var].dtypes == 'O']
+print(categorical)
+HR_Data[categorical].head()for var in categorical:
+    print(HR_Data[var].value_counts())
+
+#Using Piechart and sns for graphical representation of data
+Figure,ax = plt.subplots(1,2, figsize=(20,8))
+ax[0] = HR_Data['Attrition'].value_counts(). plot.pie(explode=[0.07,0.07], autopct = '%1.1f%%', ax=ax[0], shadow=True)
+ax[0].set_title(' Employee leave or not')
+
+sns.set_theme(style='darkgrid')
+ax[1] = sns.countplot(x=HR_Data['Attrition'], data=HR_Data)
+ax[1].set_title(" Frequency Distribution of Attrition Share")
+plt.show()
+
+
+#Using Piechart and sns for graphical representation of data
+Figure,ax = plt.subplots(1,2, figsize=(20,8))
+ax[0] = HR_Data['Attrition'].value_counts(). plot.pie(explode=[0.07,0.07], autopct = '%1.1f%%', ax=ax[0], shadow=True)
+ax[0].set_title(' Employee leave or not')
+
+sns.set_theme(style='darkgrid')
+ax[1] = sns.countplot(x=HR_Data['Attrition'], data=HR_Data)
+ax[1].set_title(" Frequency Distribution of Attrition Share")
+plt.show()
+
+#Frequency distribution of Education field w.r.t target columns
+f,ax = plt.subplots(figsize=(12,8))
+ax = sns.countplot(x='Attrition', hue='EducationField', data=HR_Data, palette='rainbow')
+ax.set_title('Frequency Distribution')
+plt.show()
+
+#JobRole Distribution 
+f, ax = plt.subplots(figsize=(10,8))
+ax = HR_Data['JobRole'].value_counts().plot(kind='bar',color='green')
+ax.set_title("Frequency Distribution of JobRole dataset")
+ax.set_xticklabels(HR_Data['JobRole'].value_counts().index, rotation=70)
+plt.show()
+
+#JobRole Distribution 
+f, ax = plt.subplots(figsize=(10,8))
+ax = HR_Data['JobRole'].value_counts().plot(kind='bar',color='green')
+ax.set_title("Frequency Distribution of JobRole dataset")
+ax.set_xticklabels(HR_Data['JobRole'].value_counts().index, rotation=70)
+plt.show()
+
+# Histogram plot of Daily rate Distribution
+f,ax = plt.subplots(figsize=(20,8))
+ax = sns.histplot(HR_Data['DailyRate'], color='red', bins=40).set_title('Daily rate Distribution')
+ 
+Random Forest Classifier
+
+x = HR_Data.drop(['Attrition'], axis=1)
+y = HR_Data['Attrition']
+
+#creating training and testing data
+X_train, X_test, Y_train, Y_test = train_test_split(x,y, test_size=0.2, random_state=42)
+
+print(X_train.shape, X_test.shape, Y_train.shape, Y_test.shape)
+
+!pip install --user category_encoders
+
+Converting Category Features
+
+#importing category_encoders for converting categorical features
+import category_encoders as ce
+Encoder = ce.OrdinalEncoder(cols = ['BusinessTravel', 'Department', 'EducationField', 'Gender', 'JobRole', 'MaritalStatus', 'Over18', 'OverTime'])
+X_train = Encoder.fit_transform(X_train)
+X_test = Encoder.fit_transform(X_test)
+print(X_train[0:5])
+
+#checking the numerical dataset and its shape
+Numerical = [var for var in HR_Data.columns if HR_Data[var].dtypes != 'O']
+print(Numerical)
+HR_Data[Numerical].shape
+
+#Applying Robust Scaler to the data for scaling in one form of data
+cols = X_train.columns
+scaler = RobustScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.fit_transform(X_test)
+X_train = pd.DataFrame(X_train, columns=[cols])
+X_test = pd.DataFrame(X_test, columns=[cols])
+
+#Finally Predicting the data and accuracy score
+randomforest = RandomForestClassifier()
+randomforest.fit(X_train, Y_train)
+y_pred = randomforest.predict(X_test)
+
+score = accuracy_score(Y_test, y_pred)
+print('The accuracy is',np.abs(score)*100)
